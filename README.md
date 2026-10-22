@@ -1,51 +1,98 @@
 # F1 Strategy Intelligence
 
-An interactive Formula 1 strategy simulator that compares staying out with
-pit-stop options using historical tyre pace, degradation, tyre-life limits, and
-Monte Carlo uncertainty.
+An interactive Formula 1 strategy simulator built with Python and Streamlit.
+The application combines historical lap data, tyre degradation estimates,
+compound pace offsets, tyre-life feasibility checks, and Monte Carlo simulation
+to compare pit-stop decisions.
 
-> **Status:** MVP
+## Overview
+
+The dashboard lets users:
+
+- select a 2025 race and driver;
+- inspect lap pace and tyre age;
+- compare historical degradation by compound;
+- test strategy decisions with interactive controls;
+- view projected race-time differences;
+- explore Monte Carlo strategy probabilities;
+- request a natural-language explanation from the strategist panel.
+
+The numerical simulator makes the recommendation first. The language model is
+used only to explain the supplied results.
 
 ## Screenshots
 
-Add screenshots to `docs/screenshots/` using these filenames:
+Add the following screenshots to `docs/screenshots/`:
 
-```text
-docs/screenshots/strategy-sandbox.png
-docs/screenshots/degradation.png
-docs/screenshots/ask-the-strategist.png
-```
+| Dashboard area | File |
+|---|---|
+| Strategy sandbox | `strategy-sandbox.png` |
+| Degradation analysis | `degradation.png` |
+| Strategist explanation | `ask-the-strategist.png` |
 
 ![Strategy sandbox](docs/screenshots/strategy-sandbox.png)
 
-![Degradation by compound](docs/screenshots/degradation.png)
+![Degradation analysis](docs/screenshots/degradation.png)
 
-![Ask the strategist](docs/screenshots/ask-the-strategist.png)
+![Strategist explanation](docs/screenshots/ask-the-strategist.png)
 
-## How it works
+## Architecture
 
 ```text
 Hugging Face lap data
           |
           v
-src/data.py
-  Load and prepare features
+     src/data.py
+  Loading and preparation
           |
           v
-src/strategy.py
-  Pace offsets, degradation, tyre-life feasibility,
-  strategy projections, and Monte Carlo simulation
+   src/strategy.py
+ Pace, degradation, feasibility,
+ projections, and Monte Carlo
           |
-          +--> app/run_strategy.py
-          |
-          +--> app/dashboard.py
-                    |
-                    v
-              Optional Groq explanation
+     +----+----+
+     |         |
+     v         v
+app/       app/
+run_strategy.py  dashboard.py
+                   |
+                   v
+             Optional Groq explanation
 ```
 
-The simulator calculates the numerical recommendation first. The LLM only
-explains the supplied facts; it is not used to calculate strategy totals.
+## Project structure
+
+```text
+f1_intelligence/
+├── app/
+│   ├── dashboard.py       # Streamlit application
+│   └── run_strategy.py    # Command-line strategy example
+├── src/
+│   ├── data.py            # Dataset loading and feature preparation
+│   ├── model.py           # Lap-time model experiments
+│   └── strategy.py        # Strategy engine
+├── models/                # Small generated model and evaluation artifacts
+├── docs/screenshots/       # README images
+├── requirements.txt
+└── README.md
+```
+
+## Strategy methodology
+
+The engine follows this process:
+
+1. Estimate the driver's recent current-stint pace.
+2. Remove degradation already represented in that recent pace.
+3. Estimate relative fresh-tyre pace offsets by compound.
+4. Resolve degradation using exact-race, historical-circuit, and global data.
+5. Project stay-out and pit-stop strategies.
+6. Reject strategies that exceed historical tyre-life limits.
+7. Perturb compound pace, degradation, and pit-loss estimates in Monte Carlo
+   simulations.
+
+The strategy table reports both projected time and feasibility. When no
+one-stint option can cover the remaining laps, the dashboard reports that a
+multi-stint model is required instead of presenting an unrealistic winner.
 
 ## Run locally
 
@@ -53,71 +100,67 @@ From the project root:
 
 ```powershell
 python -m pip install -r requirements.txt
-python -m streamlit run app/dashboard.py
-```
-
-The lap data is downloaded at runtime from the Hugging Face dataset configured in
-[src/data.py](src/data.py); no dataset files need to be committed to the repository.
-
-## Deploy on Streamlit Community Cloud
-
-Use `app/dashboard.py` as the app file and `requirements.txt` as the dependency
-file. Add `GROQ_API_KEY` as a secret to enable the optional strategist panel.
-Without that secret, the dashboard still provides the numerical strategy
-analysis.
-
-## Groq API key
-
-Never commit an API key to this repository.
-
-For a temporary local PowerShell session:
-
-```powershell
-$env:GROQ_API_KEY="your-groq-api-key"
 python -m streamlit run app\dashboard.py
 ```
 
-For Streamlit Community Cloud, add `GROQ_API_KEY` in the app's Secrets settings.
+Open the local URL shown by Streamlit, normally:
 
-The included `.env.example` is a reference template. The current app reads
-environment variables directly and does not automatically load `.env` files, so
-use PowerShell locally or Streamlit Secrets in deployment.
-
-## Command-line smoke test
-
-```powershell
-python app/run_strategy.py
+```text
+http://localhost:8501
 ```
 
-The strategy engine:
+The lap data is downloaded at runtime from the Hugging Face dataset configured
+in `src/data.py`, so the full dataset does not need to be stored in the
+repository.
 
-- anchors projections to the driver's recent current-stint pace;
-- removes already accumulated degradation before comparing compounds;
-- uses exact-race, historical-circuit, then global degradation rates;
-- rejects missing reliable compound offsets instead of silently treating them as zero;
-- randomizes compound-specific offsets and degradation rates in Monte Carlo runs.
-- marks strategies that exceed circuit-specific historical tyre-life limits as
-  infeasible instead of selecting them as winners.
+To run the command-line example instead:
 
-The Monte Carlo output is uncertainty around the model inputs, not a guarantee that
-the real driver will choose the simulated winner.
+```powershell
+python app\run_strategy.py
+```
 
-## Current limitations
+## Optional strategist panel
 
-- The strategy engine currently evaluates one-stint options; it does not yet
-  optimize complete multi-stop race plans.
-- Historical compound offsets combine available training observations across
-  drivers and teams, so they are estimates rather than controlled tyre tests.
-- Runtime data is downloaded from the Hugging Face dataset and requires network
-  access on first launch.
-- The dashboard is a decision-support prototype, not a live race prediction
-  system.
+The dashboard can use Groq to turn simulator facts into a concise explanation.
+The numerical dashboard remains available without the optional language-model
+connection.
 
-## Dataset and credits
+For deployment, configure the Groq model provider through the hosting
+platform's secret settings. Do not place credentials in source files or commit
+them to the repository.
 
-This project uses the F1 strategy dataset by Víctor Vega:
+## Example evaluation
 
-- https://huggingface.co/datasets/VforVitorio/f1-strategy-dataset
+One evaluated example uses the 2025 Monaco race state for VER at lap 27:
 
-Please retain the dataset's original license and attribution requirements when
-sharing or extending this project.
+| Item | Result |
+|---|---|
+| Current compound | HARD |
+| Current tyre age | 27 laps |
+| Evaluated pit option | PIT_FOR_MEDIUM |
+| Historical action | PIT_FOR_MEDIUM |
+| Simulator agreement | True |
+
+This is an illustrative evaluation, not a claim that the simulator is a
+complete race-prediction system.
+
+## Limitations
+
+- The current engine evaluates one-stint options and does not optimize complete
+  multi-stop race plans.
+- Historical compound offsets combine observations across drivers and teams,
+  so they are estimates rather than controlled tyre tests.
+- Pit loss is currently an input assumption rather than a fully inferred
+  circuit model.
+- Safety cars, traffic, weather changes, tyre availability, and team
+  information are not fully modeled.
+- Runtime data loading requires network access on first launch.
+
+## Dataset and credit
+
+This project uses the F1 strategy dataset created by Víctor Vega:
+
+<https://huggingface.co/datasets/VforVitorio/f1-strategy-dataset>
+
+Please follow the dataset's license and attribution requirements when sharing or
+extending this project.
