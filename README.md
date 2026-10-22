@@ -5,6 +5,8 @@ The application combines historical lap data, tyre degradation estimates,
 compound pace offsets, tyre-life feasibility checks, and Monte Carlo simulation
 to compare pit-stop decisions.
 
+[Live demo](https://f1-race-strategy-simulator.streamlit.app/)
+
 ## Overview
 
 The dashboard lets users:
