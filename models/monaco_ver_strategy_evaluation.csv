@@ -1,0 +1,2 @@
+Year,GP_Name,Driver,DecisionLap,CurrentCompound,CurrentTyreAge,ActualAction,laps_remaining,SimulatorAction,SimulatorAgrees
+2025,Monaco,VER,27,HARD,27,PIT_FOR_MEDIUM,49,PIT_FOR_MEDIUM,True

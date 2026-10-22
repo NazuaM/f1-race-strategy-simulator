@@ -1,0 +1,9 @@
+numpy
+pandas
+pyarrow
+scikit-learn
+xgboost
+scipy
+huggingface-hub
+streamlit
+groq

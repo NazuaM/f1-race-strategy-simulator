@@ -1,0 +1,8 @@
+numpy
+pandas
+pyarrow
+scikit-learn
+xgboost
+scipy
+matplotlib
+huggingface-hub

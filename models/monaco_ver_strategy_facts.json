@@ -1,0 +1,47 @@
+{
+  "race": {
+    "year": 2025,
+    "circuit": "Monaco",
+    "driver": "VER",
+    "decision_lap": 27,
+    "current_compound": "HARD",
+    "current_tyre_age": 27,
+    "laps_remaining": 49,
+    "baseline_pace": 76.27499999999999,
+    "recent_age": 25.0,
+    "pit_loss": 22.0,
+    "stint_life_limits": {
+      "HARD": 76,
+      "MEDIUM": 76,
+      "SOFT": 27
+    }
+  },
+  "tyre_rates": {
+    "HARD": 0.11949400126823068,
+    "MEDIUM": 0.09123961410443074
+  },
+  "strategy_table": [
+    {
+      "Strategy": "PIT_FOR_MEDIUM",
+      "Projected Total Time (s)": 3734.11,
+      "Feasible": true,
+      "Required tyre laps": 49,
+      "Estimated tyre limit": 76,
+      "Delta to Stay Out (s)": -155.6,
+      "Status": "Feasible"
+    },
+    {
+      "Strategy": "STAY_OUT",
+      "Projected Total Time (s)": 3889.71,
+      "Feasible": true,
+      "Required tyre laps": 76,
+      "Estimated tyre limit": 76,
+      "Delta to Stay Out (s)": -0.0,
+      "Status": "Feasible"
+    }
+  ],
+  "monte_carlo_probabilities": {
+    "STAY_OUT": 1.9,
+    "PIT_FOR_MEDIUM": 98.1
+  }
+}
