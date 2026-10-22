@@ -41,7 +41,7 @@
     }
   ],
   "monte_carlo_probabilities": {
-    "STAY_OUT": 1.9,
-    "PIT_FOR_MEDIUM": 98.1
+    "STAY_OUT": 2.3,
+    "PIT_FOR_MEDIUM": 97.7
   }
 }

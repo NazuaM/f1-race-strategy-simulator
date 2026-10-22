@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.data import test_dataset, train_dataset  # noqa: E402
+from src.data import test_dataset, train_dataset, train_dataset_sorted  # noqa: E402
 from src.strategy import (  # noqa: E402
     build_race_summary,
     build_stint_table,
@@ -25,7 +25,7 @@ from src.strategy import (  # noqa: E402
 
 @st.cache_resource
 def load_strategy_context():
-    stint_table = build_stint_table(train_dataset)
+    stint_table = build_stint_table(train_dataset_sorted)
     race_summary, overall_compound = build_race_summary(stint_table)
     return race_summary, overall_compound
 
@@ -111,17 +111,24 @@ with st.sidebar:
         "Current compound",
         [str(current_row["Compound"].iloc[0])],
     )
+    current_tyre_life = current_row["TyreLife"].iloc[0]
+    if pd.isna(current_tyre_life):
+        st.error("Tyre age is unavailable for this decision lap.")
+        st.stop()
     current_age = st.number_input(
         "Current tyre age",
         min_value=1,
         max_value=100,
-        value=int(current_row["TyreLife"].iloc[0]),
+        value=int(current_tyre_life),
     )
+    default_laps_remaining = current_row["laps_remaining"].iloc[0]
+    if pd.isna(default_laps_remaining):
+        default_laps_remaining = 1
     laps_remaining = st.number_input(
         "Laps remaining",
         min_value=1,
         max_value=100,
-        value=max(1, max_lap - decision_lap),
+        value=max(1, int(default_laps_remaining)),
     )
     pit_loss = st.number_input("Pit loss (seconds)", min_value=10.0, max_value=40.0, value=22.0)
     simulations = st.number_input("Monte Carlo simulations", 100, 10000, 1000, 100)
@@ -244,7 +251,9 @@ with tab_llm:
                 )
                 for compound in available_compounds
             },
-            "strategy_table": result.to_dict(orient="records"),
+            "strategy_table": result.astype(object)
+            .where(result.notna(), None)
+            .to_dict(orient="records"),
             "monte_carlo_probabilities": probabilities,
         }
         st.write(explain_with_llm(facts, question))

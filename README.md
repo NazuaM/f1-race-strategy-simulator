@@ -87,8 +87,8 @@ The engine follows this process:
 4. Resolve degradation using exact-race, historical-circuit, and global data.
 5. Project stay-out and pit-stop strategies.
 6. Reject strategies that exceed historical tyre-life limits.
-7. Perturb compound pace, degradation, and pit-loss estimates in Monte Carlo
-   simulations.
+7. Perturb compound pace offsets, degradation, and pit-loss estimates in Monte
+   Carlo simulations.
 
 The strategy table reports both projected time and feasibility. When no
 one-stint option can cover the remaining laps, the dashboard reports that a
@@ -150,6 +150,8 @@ complete race-prediction system.
   multi-stop race plans.
 - Historical compound offsets combine observations across drivers and teams,
   so they are estimates rather than controlled tyre tests.
+- Tyre-life limits are heuristic estimates based on historical stint rows and
+  may be affected by missing laps in the source data.
 - Pit loss is currently an input assumption rather than a fully inferred
   circuit model.
 - Safety cars, traffic, weather changes, tyre availability, and team

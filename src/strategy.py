@@ -478,7 +478,7 @@ def run_monte_carlo_strategy(
             for compound, offset in pace_offsets.items()
         }
         totals = project_strategy_totals(
-            rng.normal(baseline_pace, 0.30),
+            baseline_pace,
             current_age if recent_age is None else recent_age,
             current_compound,
             current_age,

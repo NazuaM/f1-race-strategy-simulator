@@ -8,6 +8,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+OUTPUT_DIR = ROOT / "models"
+OUTPUT_DIR.mkdir(exist_ok=True)
+
 from src.data import test_dataset, train_dataset, train_dataset_sorted
 from src.strategy import (
     build_race_summary,
@@ -71,7 +74,12 @@ monte_carlo_probabilities = run_monte_carlo_strategy(
     stint_life_limits=stint_life_limits,
 )
 
-recommended_action = result.iloc[0]["Strategy"]
+feasible_result = result[result["Feasible"]]
+recommended_action = (
+    feasible_result.iloc[0]["Strategy"]
+    if not feasible_result.empty
+    else "NO_FEASIBLE_STRATEGY"
+)
 actual_action = "PIT_FOR_MEDIUM"
 
 facts = {
@@ -94,11 +102,13 @@ facts = {
         )
         for compound in available_compounds
     },
-    "strategy_table": result.to_dict(orient="records"),
+    "strategy_table": result.astype(object)
+    .where(result.notna(), None)
+    .to_dict(orient="records"),
     "monte_carlo_probabilities": monte_carlo_probabilities,
 }
 
-with open("models/monaco_ver_strategy_facts.json", "w") as file:
+with open(OUTPUT_DIR / "monaco_ver_strategy_facts.json", "w") as file:
     json.dump(facts, file, indent=2)
 
 evaluation_case = pd.DataFrame(
@@ -117,7 +127,10 @@ evaluation_case = pd.DataFrame(
         }
     ]
 )
-evaluation_case.to_csv("models/monaco_ver_strategy_evaluation.csv", index=False)
+evaluation_case.to_csv(
+    OUTPUT_DIR / "monaco_ver_strategy_evaluation.csv",
+    index=False,
+)
 
 print(result)
 print("Reliable offsets:", reliable_offsets)

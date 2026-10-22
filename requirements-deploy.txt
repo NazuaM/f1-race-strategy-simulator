@@ -6,4 +6,4 @@ xgboost
 scipy
 huggingface-hub
 streamlit
-openai
+groq
