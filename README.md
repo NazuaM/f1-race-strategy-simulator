@@ -22,7 +22,7 @@ used only to explain the supplied results.
 
 ## Screenshots
 
-Add the following screenshots to `docs/screenshots/`:
+The dashboard currently includes these views:
 
 | Dashboard area | File |
 |---|---|
@@ -63,7 +63,7 @@ run_strategy.py  dashboard.py
 ## Project structure
 
 ```text
-f1_intelligence/
+f1-race-strategy-simulator/
 ├── app/
 │   ├── dashboard.py       # Streamlit application
 │   └── run_strategy.py    # Command-line strategy example
@@ -100,7 +100,7 @@ From the project root:
 
 ```powershell
 python -m pip install -r requirements.txt
-python -m streamlit run app\dashboard.py
+python -m streamlit run app/dashboard.py
 ```
 
 Open the local URL shown by Streamlit, normally:
@@ -116,7 +116,7 @@ repository.
 To run the command-line example instead:
 
 ```powershell
-python app\run_strategy.py
+python app/run_strategy.py
 ```
 
 ## Optional strategist panel
