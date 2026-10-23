@@ -45,21 +45,20 @@ Hugging Face lap data
           |
           v
      src/data.py
-  Loading and preparation
+ Loading and preparation
           |
           v
    src/strategy.py
  Pace, degradation, feasibility,
  projections, and Monte Carlo
           |
-     +----+----+
-     |         |
-     v         v
-app/       app/
-run_strategy.py  dashboard.py
-                   |
-                   v
-             Optional Groq explanation
+     +-------------------+
+     |                   |
+     v                   v
+app/run_strategy.py  app/dashboard.py
+                         |
+                         v
+                   Optional Groq explanation
 ```
 
 ## Project structure
@@ -121,6 +120,15 @@ To run the command-line example instead:
 python app/run_strategy.py
 ```
 
+## Dependencies
+
+- `requirements.txt` contains the full local application and modeling
+  environment, including Streamlit and Groq.
+- `requirements-deploy.txt` contains the deployment environment for the
+  Streamlit app.
+- `requirements-colab.txt` contains the notebook/Colab environment and omits
+  the app-only packages.
+
 ## Optional strategist panel
 
 The dashboard can use Groq to turn simulator facts into a concise explanation.
@@ -130,6 +138,23 @@ connection.
 For deployment, configure the Groq model provider through the hosting
 platform's secret settings. Do not place credentials in source files or commit
 them to the repository.
+
+For local use, export `GROQ_API_KEY` in the shell before starting Streamlit.
+The key is optional; the numerical simulator works without it.
+
+## Model evaluation
+
+The lap-time model experiment in `src/model.py` uses XGBoost to predict
+absolute lap time and lap-time delta. On the 2025 test dataset, the
+previous-lap baseline has an MAE of **0.361 seconds** and an RMSE of
+**0.632 seconds**. The absolute-lap-time XGBoost model has an MAE of
+**0.507 seconds** and an RMSE of **0.962 seconds** using the current feature
+set. Running `python src/model.py` trains the XGBoost models and prints their
+feature importance and diagnostic output.
+
+The XGBoost experiment is separate from the strategy simulator: the simulator
+uses the historical pace, degradation, and feasibility calculations rather than
+the trained XGBoost prediction.
 
 ## Example evaluation
 
